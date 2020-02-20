@@ -19,7 +19,7 @@ class RegisterPage extends React.Component {
             },
             submitted: false,
             isPinForm: false,
-            pinCode: ''
+            pincode: ''
         };
 
         this.handleChange = this.handleChange.bind(this);
@@ -29,22 +29,27 @@ class RegisterPage extends React.Component {
 
     handleChange(event) {
         const { name, value } = event.target;
-        const { user } = this.state;
-        this.setState({
-            user: {
-                ...user,
-                [name]: value
-            }
-        });
+        const { user, pincode } = this.state;
+        if (name === 'pincode') {
+            this.setState({ pincode, [name]: value })
+        } else {
+            this.setState({
+                user: {
+                    ...user,
+                    [name]: value
+                }
+            });
+        }
     }
 
     handleSubmit(event) {
         event.preventDefault();
 
         this.setState({ submitted: true });
-        const { user } = this.state;
-        if (user.username && user.password) {
+        const { user, pincode } = this.state;
+        if (user.username && user.password && pincode) {
             this.props.register(user);
+            this.setState({ submitted: false });
         }
     }
 
@@ -54,24 +59,24 @@ class RegisterPage extends React.Component {
         this.setState({ submitted: true });
         const { user } = this.state;
         if (user.username && user.password) {
-            this.props.register(user);
             this.setState({ isPinForm: true });
+            this.setState({ submitted: false });
         }
     }
 
     render() {
         const { registering } = this.props;
-        const { user, submitted, isPinForm, pinCode } = this.state;
+        const { user, submitted, isPinForm, pincode } = this.state;
         return (
             <article className="component-login d-flex justify-content-center my-5 mx-auto">
                 <Card className="col-sm-12 col-md-6 col-lg-4 px-0">
                     <Card.Header>ثبت‌نام در سامانه</Card.Header>
                     <Card.Body>
                         {isPinForm &&
-                            <PinForm handleChange={this.handleChange} handleSubmit={this.handleSubmit} submitted={submitted} pinCode={pinCode}/>
+                            <PinForm handleChange={this.handleChange} handleSubmit={this.handleSubmit} submitted={submitted} pincode={pincode} />
                         }
                         {!isPinForm &&
-                           <PhoneNmberForm handleChange={this.handleChange} handleSendOtp={this.handleSendOtp} submitted={submitted} user={user}/>
+                            <PhoneNmberForm handleChange={this.handleChange} handleSendOtp={this.handleSendOtp} submitted={submitted} user={user} />
                         }
                     </Card.Body>
                 </Card>
@@ -81,16 +86,20 @@ class RegisterPage extends React.Component {
 }
 
 function PinForm(props) {
-    const { handleChange, handleSubmit, submitted, pinCode } = props
+    const { handleChange, handleSubmit, submitted, pincode } = props
     return <Form name="form" onSubmit={handleSubmit}>
-        <div className={'form-group' + (submitted && !pinCode ? ' has-error' : '')}>
+        <div className={'form-group' + (submitted && !pincode ? ' has-error' : '')}>
             <Form.Group>
-                <Form.Label htmlFor="username">کد ارسال شده را وارد کنید</Form.Label>
-                <Form.Control type="text" name="username" value={pinCode} onChange={handleChange} />
-                {submitted && !pinCode &&
-                    <div className="help-block text-danger">وارد کردن کد اجباری است</div>
+                <Form.Label htmlFor="pincode">کد ارسال شده را وارد کنید</Form.Label>
+                <Form.Control type="text" name="pincode" value={pincode} onChange={handleChange} />
+                {pincode}
+                {submitted && !pincode &&
+                    <div className="help-block text-danger">وارد کردن کد تایید اجباری است</div>
                 }
             </Form.Group>
+        </div>
+        <div className="form-group">
+            <button className="btn btn-success px-4">ثبت‌نام</button>
         </div>
     </Form>
 }
