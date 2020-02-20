@@ -14,16 +14,17 @@ class RegisterPage extends React.Component {
 
         this.state = {
             user: {
-                firstName: '',
-                lastName: '',
                 username: '',
                 password: ''
             },
-            submitted: false
+            submitted: false,
+            isPinForm: false,
+            pinCode: ''
         };
 
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleSendOtp = this.handleSendOtp.bind(this);
     }
 
     handleChange(event) {
@@ -42,69 +43,84 @@ class RegisterPage extends React.Component {
 
         this.setState({ submitted: true });
         const { user } = this.state;
-        if (user.firstName && user.lastName && user.username && user.password) {
+        if (user.username && user.password) {
             this.props.register(user);
+        }
+    }
+
+    handleSendOtp(event) {
+        event.preventDefault();
+
+        this.setState({ submitted: true });
+        const { user } = this.state;
+        if (user.username && user.password) {
+            this.props.register(user);
+            this.setState({ isPinForm: true });
         }
     }
 
     render() {
         const { registering } = this.props;
-        const { user, submitted } = this.state;
+        const { user, submitted, isPinForm, pinCode } = this.state;
         return (
             <article className="component-login d-flex justify-content-center my-5 mx-auto">
                 <Card className="col-sm-12 col-md-6 col-lg-4 px-0">
                     <Card.Header>ثبت‌نام در سامانه</Card.Header>
                     <Card.Body>
-                        <Form name="form" onSubmit={this.handleSubmit}>
-                            <div className={'form-group' + (submitted && !user.firstName ? ' has-error' : '')}>
-                                <Form.Group>
-                                    <Form.Label htmlFor="firstName">نام</Form.Label>
-                                    <Form.Control type="text" name="firstName" value={user.firstName} onChange={this.handleChange} />
-                                    {submitted && !user.firstName &&
-                                        <div className="help-block text-danger">نام اجباری است</div>
-                                    }
-                                </Form.Group>
-                            </div>
-                            <div className={'form-group' + (submitted && !user.lastName ? ' has-error' : '')}>
-                                <Form.Group>
-                                    <Form.Label htmlFor="lastName">نام خانوادگی</Form.Label>
-                                    <Form.Control type="text" name="lastName" value={user.lastName} onChange={this.handleChange} />
-                                    {submitted && !user.lastName &&
-                                        <div className="help-block text-danger">نام خانوادگی اجباری است</div>
-                                    }
-                                </Form.Group>
-                            </div>
-                            <div className={'form-group' + (submitted && !user.username ? ' has-error' : '')}>
-                                <Form.Group>
-                                    <Form.Label htmlFor="username">پست الکترونیک / شماره همراه</Form.Label>
-                                    <Form.Control type="text" name="username" value={user.username} onChange={this.handleChange} />
-                                    {submitted && !user.username &&
-                                        <div className="help-block text-danger">پست الکترونیک / شماره همراه اجباری است</div>
-                                    }
-                                </Form.Group>
-                            </div>
-                            <div className={'form-group' + (submitted && !user.password ? ' has-error' : '')}>
-                                <Form.Group>
-                                    <Form.Label htmlFor="password">کلمه عبور</Form.Label>
-                                    <Form.Control type="password" name="password" value={user.password} onChange={this.handleChange} />
-                                    {submitted && !user.password &&
-                                        <div className="help-block text-danger">کلمه عبور تکراری است</div>
-                                    }
-                                </Form.Group>
-                            </div>
-                            <div className="form-group">
-                                <button className="btn btn-success px-4">ثبت‌نام</button>
-                                {registering &&
-                                    <img src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
-                                }
-                                <Link to="/login" className="btn btn-link mx-2 px-4">حساب کاربری دارید؟ وارد شوید</Link>
-                            </div>
-                        </Form>
+                        {isPinForm &&
+                            <PinForm handleChange={this.handleChange} handleSubmit={this.handleSubmit} submitted={submitted} pinCode={pinCode}/>
+                        }
+                        {!isPinForm &&
+                           <PhoneNmberForm handleChange={this.handleChange} handleSendOtp={this.handleSendOtp} submitted={submitted} user={user}/>
+                        }
                     </Card.Body>
                 </Card>
             </article>
         );
     }
+}
+
+function PinForm(props) {
+    const { handleChange, handleSubmit, submitted, pinCode } = props
+    return <Form name="form" onSubmit={handleSubmit}>
+        <div className={'form-group' + (submitted && !pinCode ? ' has-error' : '')}>
+            <Form.Group>
+                <Form.Label htmlFor="username">کد ارسال شده را وارد کنید</Form.Label>
+                <Form.Control type="text" name="username" value={pinCode} onChange={handleChange} />
+                {submitted && !pinCode &&
+                    <div className="help-block text-danger">وارد کردن کد اجباری است</div>
+                }
+            </Form.Group>
+        </div>
+    </Form>
+}
+
+function PhoneNmberForm(props) {
+    const { handleChange, handleSendOtp, submitted, user } = props
+    return <Form name="form" onSubmit={handleSendOtp}>
+        <div className={'form-group' + (!user.username ? ' has-error' : '')}>
+            <Form.Group>
+                <Form.Label htmlFor="username">پست الکترونیک / شماره همراه</Form.Label>
+                <Form.Control type="text" name="username" value={user.username} onChange={handleChange} />
+                {submitted && !user.username &&
+                    <div className="help-block text-danger">پست الکترونیک / شماره همراه اجباری است</div>
+                }
+            </Form.Group>
+        </div>
+        <div className={'form-group' + (submitted && !user.password ? ' has-error' : '')}>
+            <Form.Group>
+                <Form.Label htmlFor="password">کلمه عبور</Form.Label>
+                <Form.Control type="password" name="password" value={user.password} onChange={handleChange} />
+                {submitted && !user.password &&
+                    <div className="help-block text-danger">کلمه عبور تکراری است</div>
+                }
+            </Form.Group>
+        </div>
+        <div className="form-group">
+            <button className="btn btn-success px-4">ثبت‌نام</button>
+            <Link to="/login" className="btn btn-link mx-2 px-4">حساب کاربری دارید؟ وارد شوید</Link>
+        </div>
+    </Form>
 }
 
 function mapState(state) {
