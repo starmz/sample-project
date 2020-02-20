@@ -24,7 +24,7 @@ class App extends React.Component {
     }
 
     render() {
-        const { alert } = this.props;
+        const { alert, authentication } = this.props;
         return (
             <div className="app">
                 {alert.message &&
@@ -43,12 +43,21 @@ class App extends React.Component {
                             <h4 className="text-dark">Core Trading System</h4>
                         </Navbar.Brand>
                         <Nav className="mr-auto">
-                            <Link className="text-dark" to="/register">
-                                ثبت نام
+                            {!authentication.loggedIn &&
+                                <Link className="text-dark" to="/register">
+                                    ثبت نام
                             </Link>
-                            <Link className="text-dark mx-4" to="/login">
-                                ورود
+                            }
+                            {!authentication.loggedIn &&
+                                <Link className="text-dark mx-4" to="/login">
+                                    ورود
                             </Link>
+                            }
+                              {authentication.loggedIn &&
+                                <Link className="text-dark" to="/register">
+                                    درباره ما
+                            </Link>
+                            }
                         </Nav>
                     </Navbar>
                     <Switch>
@@ -65,13 +74,13 @@ class App extends React.Component {
 }
 
 function mapState(state) {
-    const { alert } = state;
-    return { alert };
+    const { alert, authentication } = state;
+    return { alert, authentication };
 }
 
 const actionCreators = {
     clearAlerts: alertActions.clear
-};
+}
 
 const connectedApp = connect(mapState, actionCreators)(App);
 export { connectedApp as App };
